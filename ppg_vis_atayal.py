@@ -57,9 +57,16 @@ def plot_ppg(input_wav, output_fig):
     df = pd.read_csv('./phoneme_tokens.csv', header=None)
     exact_ph = df.iloc[token_detected, 0].values
     
-    sns.heatmap(readable_ppg.numpy().T, cmap="YlGnBu", yticklabels=exact_ph)
-    plt.savefig(output_fig)
+    times = 0.0125 + 0.02 * np.arange(0, readable_ppg.shape[0])
+    hmap = sns.heatmap(readable_ppg.numpy().T, cmap="YlGnBu", yticklabels=exact_ph)
+    hmap.set_xticks(np.arange(0, readable_ppg.shape[0], 25))
+    hmap.set_xticklabels(np.round(times[::25], 1), rotation=0)
+    hmap.set_xlabel("Time (s)")
+    hmap.set_ylabel("Phoneme Cadidates")
+    hmap.size = (24.27, 15)
     
+    plt.savefig(output_fig)
+
 if __name__ == "__main__":
         
     parser = get_parser()
