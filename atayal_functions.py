@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 
 import pathlib
 import datetime
+import os
 
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC, Wav2Vec2CTCTokenizer
 import ctc_segmentation
@@ -38,7 +39,7 @@ def diagnosis(input_wav: pathlib.Path, output_dir: str, model : Wav2Vec2ForCTC =
     with open(f"{output_dir}/{input_wav.stem}_phoneme_diagnosis.log", "w") as f:
     
         f.write(f"Datatime : {datetime.datetime.now()}\n")
-        f.write(f"Input wav : {input_wav}\n")
+        f.write(f"Input wav : {input_wav.resolve()}\n")
         f.write("\n")
         f.write("\n")
         
