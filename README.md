@@ -1,2 +1,3 @@
-# atayal_core
+# smangus #
+
 An Atayal analysis tools written in Python
