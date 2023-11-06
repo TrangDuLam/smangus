@@ -11,12 +11,14 @@ def get_parser():
         "-i", "--input_dir",
         type=str,
         required=True,
+        help="Path to input directory",
         default=None)
     
     parser.add_argument(
         "-t", "--task",
         type=str,
         required=True,
+        help="Task to perform",
         default=None)
     
     return parser
