@@ -1,4 +1,6 @@
 from atayal_functions import *
+from utils import *
+
 import pathlib
 import os
 import argparse
@@ -58,3 +60,12 @@ if __name__ == "__main__":
         
         for f in files:
             phoneme_alignment(f, f"{args.input_dir}_alignment")
+            
+    elif args.task == "validate_dir" :
+        
+        for f in files:
+            if check_sf(f) == False:
+                raise ValueError(f"{f} does not have the correct sampling frequency (16kHz)")
+            
+        print("All files have the correct sampling frequency (16kHz)")
+

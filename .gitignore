@@ -1,0 +1,4 @@
+# Some directories to ignore
+
+# Ignore the build directory generated
+__pycache__
