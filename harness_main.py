@@ -1,4 +1,6 @@
-from atayal_functions import *
+from atayal_retrieval import *
+from atayal_extractor import *
+
 from utils import *
 
 import pathlib
@@ -17,6 +19,13 @@ def get_parser():
         default=None)
     
     parser.add_argument(
+        "-m", "--mode",
+        type=str,
+        required=True,
+        help="Mode of operation",
+        default=None)
+    
+    parser.add_argument(
         "-t", "--task",
         type=str,
         required=True,
@@ -32,40 +41,61 @@ if __name__ == "__main__":
 
     files = pathlib.Path(args.input_dir).glob("**/*.wav")
     
-    if args.task == "diagnosis":
-        
-        if not os.path.exists(f"{args.input_dir}_diagnosis"):
-            os.makedirs(f"{args.input_dir}_diagnosis")
-        
-        for f in files:
-            diagnosis(f, f"{args.input_dir}_diagnosis")
     
-    elif args.task  == "plot_ppg" :
-        
-        if not os.path.exists(f"{args.input_dir}_ppg_figures"):
-            os.makedirs(f"{args.input_dir}_ppg_figures")
+    if args.mode == 'retrieval' :
+        if args.task == "diagnosis":
             
-        for f in files:
-            plot_ppg(f, f"{args.input_dir}_ppg_figures")
+            if not os.path.exists(f"{args.input_dir}_diagnosis"):
+                os.makedirs(f"{args.input_dir}_diagnosis")
             
-    elif args.task == "recognition" :
+            for f in files:
+                diagnosis(f, f"{args.input_dir}_diagnosis")
         
-        # No need to create additional folder
-        recognition_and_save(args.input_dir, f"{args.input_dir}_phm_recognition.csv")
-        
-    elif args.task == "alignment" :
-        
-        if not os.path.exists(f"{args.input_dir}_alignment"):
-            os.makedirs(f"{args.input_dir}_alignment")
-        
-        for f in files:
-            phoneme_alignment(f, f"{args.input_dir}_alignment")
+        elif args.task  == "plot_ppg" :
             
-    elif args.task == "validate_dir" :
-        
-        for f in files:
-            if check_sf(f) == False:
-                raise ValueError(f"{f} does not have the correct sampling frequency (16kHz)")
+            if not os.path.exists(f"{args.input_dir}_ppg_figures"):
+                os.makedirs(f"{args.input_dir}_ppg_figures")
+                
+            for f in files:
+                plot_ppg(f, f"{args.input_dir}_ppg_figures")
+                
+        elif args.task == "recognition" :
             
-        print("All files have the correct sampling frequency (16kHz)")
+            # No need to create additional folder
+            recognition_and_save(args.input_dir, f"{args.input_dir}_phm_recognition.csv")
+            
+        elif args.task == "alignment" :
+            
+            if not os.path.exists(f"{args.input_dir}_alignment"):
+                os.makedirs(f"{args.input_dir}_alignment")
+            
+            for f in files:
+                phoneme_alignment(f, f"{args.input_dir}_alignment")
+                
+        else:
+            raise ValueError(f"{args.task} is not a valid task in retrieval mode")
+    
+    elif args.mode == 'processor':
+            
+        if args.task == "validate_dir" :
+            
+            for f in files:
+                if check_sf(f) == False:
+                    raise ValueError(f"{f} does not have the correct sampling frequency (16kHz)")
+                
+            print("All files have the correct sampling frequency (16kHz)")
+            
+        if args.task == "extract_ppg" :
+            
+            if not os.path.exists(f"{args.input_dir}_ppg"):
+                os.makedirs(f"{args.input_dir}_ppg")
+            
+            print("Starting to extract PPG")
+            
+            t_start = datetime.datetime.now()
+            for f in files:
+                extract_ppg(f, f"{args.input_dir}_ppg")
+                
+            print(f"Time elapsed: {datetime.datetime.now() - t_start}")
+            print("PPG extraction completed successfully!")
 
