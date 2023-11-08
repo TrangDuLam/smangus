@@ -1,7 +1,3 @@
-{"xlsr-53" :
-    {
-        "processor" : "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
-        "tokenizer" : "facebook/wav2vec2-xlsr-53-espeak-cv-ft",
-        "model" : "facebook/wav2vec2-xlsr-53-espeak-cv-ft"
-    }
+{
+    "xlsr-53" : "facebook/wav2vec2-xlsr-53-espeak-cv-ft"
 }

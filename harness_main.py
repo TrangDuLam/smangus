@@ -32,6 +32,13 @@ def get_parser():
         help="Task to perform",
         default=None)
     
+    parser.add_argument(
+        "-b", "--backend",
+        type=str,
+        required=False,
+        help="Backend model to use",
+        default='xlsr-53')
+    
     return parser
 
 if __name__ == "__main__":
@@ -49,7 +56,7 @@ if __name__ == "__main__":
                 os.makedirs(f"{args.input_dir}_diagnosis")
             
             for f in files:
-                diagnosis(f, f"{args.input_dir}_diagnosis")
+                diagnosis(f, f"{args.input_dir}_diagnosis", backend=args.backend)
         
         elif args.task  == "plot_ppg" :
             
@@ -57,12 +64,12 @@ if __name__ == "__main__":
                 os.makedirs(f"{args.input_dir}_ppg_figures")
                 
             for f in files:
-                plot_ppg(f, f"{args.input_dir}_ppg_figures")
+                plot_ppg(f, f"{args.input_dir}_ppg_figures", backend=args.backend)
                 
         elif args.task == "recognition" :
             
             # No need to create additional folder
-            recognition_and_save(args.input_dir, f"{args.input_dir}_phm_recognition.csv")
+            recognition_and_save(args.input_dir, f"{args.input_dir}_phm_recognition_{datetime.datetime.now()}.csv")
             
         elif args.task == "alignment" :
             
@@ -70,7 +77,7 @@ if __name__ == "__main__":
                 os.makedirs(f"{args.input_dir}_alignment")
             
             for f in files:
-                phoneme_alignment(f, f"{args.input_dir}_alignment")
+                phoneme_alignment(f, f"{args.input_dir}_alignment", backend=args.backend)
                 
         else:
             raise ValueError(f"{args.task} is not a valid task in retrieval mode")
@@ -94,7 +101,7 @@ if __name__ == "__main__":
             
             t_start = datetime.datetime.now()
             for f in files:
-                extract_ppg(f, f"{args.input_dir}_ppg")
+                extract_ppg(f, f"{args.input_dir}_ppg", backend=args.backend)
                 
             print(f"Time elapsed: {datetime.datetime.now() - t_start}")
             print("PPG extraction completed successfully!")

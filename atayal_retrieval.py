@@ -1,5 +1,6 @@
 import numpy as np
 from typing import List
+from utils import *
 
 import torch
 import torchaudio
@@ -15,12 +16,15 @@ import os
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC, Wav2Vec2CTCTokenizer
 import ctc_segmentation
 
+'''
 processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-xlsr-53-espeak-cv-ft")
 tokenizer = Wav2Vec2CTCTokenizer.from_pretrained("facebook/wav2vec2-xlsr-53-espeak-cv-ft")
 model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-xlsr-53-espeak-cv-ft")
+'''
 
-def diagnosis(input_wav: pathlib.Path, output_dir: str, model : Wav2Vec2ForCTC = model,
-    processor : Wav2Vec2Processor = processor, tokenizer : Wav2Vec2CTCTokenizer = tokenizer) :
+def diagnosis(input_wav: pathlib.Path, output_dir: str, backend : str = 'xlsr-53') :
+    
+    processor, _, model = load_hugginface_model(backend)
     
     waveform, sample_rate = torchaudio.load(input_wav)
     inputs = processor(waveform[0], return_tensors="pt", padding="longest", sampling_rate = sample_rate)
@@ -38,7 +42,7 @@ def diagnosis(input_wav: pathlib.Path, output_dir: str, model : Wav2Vec2ForCTC =
 
     with open(f"{output_dir}/{input_wav.stem}_phoneme_diagnosis.log", "w") as f:
     
-        f.write(f"Datatime : {datetime.datetime.now()}\n")
+        f.write(f"Datetime : {datetime.datetime.now()}\n")
         f.write(f"Input wav : {input_wav.resolve()}\n")
         f.write("\n")
         f.write("\n")
@@ -60,8 +64,9 @@ def diagnosis(input_wav: pathlib.Path, output_dir: str, model : Wav2Vec2ForCTC =
         
         
 # need to fix the plot
-def plot_ppg(input_wav: pathlib.Path, output_dir = str, model : Wav2Vec2ForCTC = model,
-    processor : Wav2Vec2Processor = processor, tokenizer : Wav2Vec2CTCTokenizer = tokenizer):
+def plot_ppg(input_wav: pathlib.Path, output_dir = str, backend : str = 'xlsr-53'):
+    
+    processor, _, model = load_hugginface_model(backend)
     
     waveform, sample_rate = torchaudio.load(input_wav)
     inputs = processor(waveform[0], return_tensors="pt", padding="longest", sampling_rate = sample_rate)
@@ -98,8 +103,9 @@ def plot_ppg(input_wav: pathlib.Path, output_dir = str, model : Wav2Vec2ForCTC =
     
     plt.savefig(f"{output_dir}/{input_wav.stem}_ppg_vis.png")
     
-def get_phonemes(audio : np.ndarray, samplerate : int, model : Wav2Vec2ForCTC = model,
-    processor : Wav2Vec2Processor = processor, tokenizer : Wav2Vec2CTCTokenizer = tokenizer):
+def get_phonemes(audio : np.ndarray, samplerate : int, backend : str = 'xlsr-53'):
+    
+    processor, tokenizer, model = load_hugginface_model(backend)
     
     assert audio.ndim == 1
     # Run prediction, get logits and probabilities
@@ -124,9 +130,9 @@ def recognition_and_save(input_dir, output_csv):
         
     df.to_csv(output_csv, index=False)
     
-def phoneme_alignment(input_wav: pathlib.Path, output_dir: str, 
-                    model : Wav2Vec2ForCTC = model, processor : Wav2Vec2Processor = processor, 
-                    tokenizer : Wav2Vec2CTCTokenizer = tokenizer):
+def phoneme_alignment(input_wav: pathlib.Path, output_dir: str, backend : str = 'xlsr-53'):
+    
+    processor, tokenizer, model = load_hugginface_model(backend)
     
     waveform, sample_rate = torchaudio.load(input_wav)
     
