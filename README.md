@@ -1,7 +1,7 @@
 # smangus #
 
-    + A Python speech analysis tool for Atayal language, an indigenous language in Taiwan.
-    + This tool is named after a famous Atayal tribe, Smangus.
++ A Python speech analysis tool for Atayal language, an indigenous language in Taiwan.
++ This tool is named after a famous Atayal tribe, Smangus.
 
 ## Usage ##
 
