@@ -5,6 +5,6 @@
 
 ## Usage ##
 
-    ```shell
-    python3 harness_main.py -i <INPUT_DIR> -m <MODE> -t <TASK>
-    ```
+```shell
+    python3 harness_main.py -i <INPUT_DIR> -m <MODE> -t <TASK> -b <BACKEND MODEL>
+```
