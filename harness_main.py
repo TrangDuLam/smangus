@@ -1,5 +1,5 @@
 from atayal_retrieval import *
-from atayal_extractor import *
+from atayal_feats import *
 
 from utils import *
 
