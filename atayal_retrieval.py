@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List
 from utils import *
+from tqdm import tqdm
 
 import torch
 import torchaudio
@@ -124,7 +125,7 @@ def recognition_and_save(input_dir, output_csv):
     data_dir = pathlib.Path(input_dir).glob('*.wav')
     df = pd.DataFrame(columns=['file', 'pred_phonemes'])
     
-    for file in data_dir:
+    for file in tqdm(data_dir):
         waveform, SAMPLERATE = torchaudio.load(file)
         df.loc[len(df)] = [file.name, get_phonemes(waveform[0].numpy(), SAMPLERATE)]
         

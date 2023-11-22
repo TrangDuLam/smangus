@@ -2,6 +2,7 @@ from atayal_retrieval import *
 from atayal_feats import *
 
 from utils import *
+from tqdm import tqdm
 
 import pathlib
 import os
@@ -55,7 +56,7 @@ if __name__ == "__main__":
             if not os.path.exists(f"{args.input_dir}_diagnosis"):
                 os.makedirs(f"{args.input_dir}_diagnosis")
             
-            for f in files:
+            for f in tqdm(files):
                 diagnosis(f, f"{args.input_dir}_diagnosis", backend=args.backend)
         
         elif args.task  == "plot_ppg" :
@@ -63,7 +64,7 @@ if __name__ == "__main__":
             if not os.path.exists(f"{args.input_dir}_ppg_figures"):
                 os.makedirs(f"{args.input_dir}_ppg_figures")
                 
-            for f in files:
+            for f in tqdm(files):
                 plot_ppg(f, f"{args.input_dir}_ppg_figures", backend=args.backend)
                 
         elif args.task == "recognition" :
@@ -76,7 +77,7 @@ if __name__ == "__main__":
             if not os.path.exists(f"{args.input_dir}_alignment"):
                 os.makedirs(f"{args.input_dir}_alignment")
             
-            for f in files:
+            for f in tqdm(files):
                 phoneme_alignment(f, f"{args.input_dir}_alignment", backend=args.backend)
                 
         else:
@@ -100,7 +101,7 @@ if __name__ == "__main__":
             print("Starting to extract PPG")
             
             t_start = datetime.datetime.now()
-            for f in files:
+            for f in tqdm(files):
                 extract_ppg(f, f"{args.input_dir}_ppg", backend=args.backend)
                 
             print(f"Time elapsed: {datetime.datetime.now() - t_start}")
