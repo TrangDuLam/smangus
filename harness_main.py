@@ -65,7 +65,7 @@ if __name__ == "__main__":
                 os.makedirs(f"{args.input_dir}_ppg_figures")
                 
             for f in tqdm(files):
-                plot_ppg(f, f"{args.input_dir}_ppg_figures", backend=args.backend)
+                plot_log_ppg(f, f"{args.input_dir}_ppg_figures", backend=args.backend)
                 
         elif args.task == "recognition" :
             

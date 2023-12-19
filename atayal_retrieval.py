@@ -10,6 +10,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+import typing
+
 import pathlib
 import datetime
 import os
@@ -65,46 +67,54 @@ def diagnosis(input_wav: pathlib.Path, output_dir: str, backend : str = 'xlsr-53
         
         
 # need to fix the plot
-def plot_ppg(input_wav: pathlib.Path, output_dir = str, backend : str = 'xlsr-53'):
+def plot_log_ppg(input_wav: pathlib.Path, output_dir = str, n_best: int = 3, backend : str = 'xlsr-53'):
+    '''
+    Visualize the phoneme posteriorgram of the input wav file in the log scale.
     
-    processor, _, model = load_hugginface_model(backend)
+    '''
     
+    processor, tokenizer, model = load_hugginface_model(backend)
+
     waveform, sample_rate = torchaudio.load(input_wav)
     inputs = processor(waveform[0], return_tensors="pt", padding="longest", sampling_rate = sample_rate)
     with torch.no_grad():
-            logits = model(inputs.input_values).logits.cpu()[0]
-            #logits = model(waveform).logits[0]
-            probs = torch.nn.functional.softmax(logits,dim=1)
-            
-    probs[probs <= 1e-4] = 0
-    sorted_probs, indices = torch.sort(probs, descending=True)
-    
-    all_token_detect = indices[:, :3].numpy().ravel()
-    token_detected = np.sort(np.array(list(set(all_token_detect))))
-    readable_ppg = torch.zeros(probs.shape[0], len(token_detected))
+        logits = model(inputs.input_values).logits.cpu()[0]
+        probs = torch.nn.functional.log_softmax(logits, dim=-1)
 
-    for i in range(len(sorted_probs)):
-        token_vals = indices[i, :3].numpy().ravel()
-        sorter = np.argsort(token_detected)
-        token_idx = sorter[np.searchsorted(token_detected, token_vals, sorter=sorter)]
-        readable_ppg[i, token_idx] = sorted_probs[i, :3]
-        
-    df = pd.read_csv('./phoneme_tokens.csv', header=None)
-    exact_ph = df.iloc[token_detected, 0].values
-    
-    times = 0.0125 + 0.02 * np.arange(0, readable_ppg.shape[0])
-    
-    plt.figure()
-    hmap = sns.heatmap(readable_ppg.numpy().T, cmap="YlGnBu", yticklabels=exact_ph)
-    hmap.set_xticks(np.arange(0, readable_ppg.shape[0], 25))
+    nbest_ppg = np.log(1e-6) * torch.ones_like(probs)
+
+    for time in range(probs.shape[0]):
+        #print(time,tokenizer.decode(torch.argmax(probs[time])))
+        if probs[time][0] > torch.log(torch.Tensor([0.999])): # Silence or padding
+            nbest_ppg[time][0] = probs[time][0]
+        else :
+            sort_probs, sort_idx = torch.sort(probs[time],descending=True)
+            nbest_ppg[time][sort_idx[:n_best]] = sort_probs[:n_best]
+
+    rawIdxStored = [
+        i
+        for i, post in enumerate(nbest_ppg.T)
+        if not torch.all(post == np.log(1e-6))
+    ]
+    times = 0.0125 + 0.02 * np.arange(0, nbest_ppg.shape[0]) # the time axis ticks
+
+    plt.figure(figsize=(33.97, 21))
+    # sns.set(rc={'figure.figsize':(33.97, 21)})
+    sns.set(font_scale=2)
+    hmap = sns.heatmap(nbest_ppg[:, rawIdxStored].T, cmap="YlGnBu", cbar_kws={'label': 'log posterior'})
+    hmap.set_xticks(np.arange(0, nbest_ppg.shape[0], 25))
     hmap.set_xticklabels(np.round(times[::25], 1), rotation=0)
-    hmap.set_xlabel("Time (s)")
-    hmap.set_ylabel("Phoneme Cadidates")
-    hmap.size = (24.27, 15)
-    
-    plt.savefig(f"{output_dir}/{input_wav.stem}_ppg_vis.png")
+    hmap.set_yticklabels(tokenizer.convert_ids_to_tokens(rawIdxStored), rotation=0)
+    hmap.set_xlabel('Time (s)')
+    hmap.set_ylabel('Phonemes')
+    hmap.set_title(f'{n_best}-best PPG')
+    plt.savefig(f"{output_dir}/{input_wav.stem}_ppg.png")
     
 def get_phonemes(audio : np.ndarray, samplerate : int, backend : str = 'xlsr-53'):
+    '''
+    Pure phoneme recognition function.
+    
+    '''
     
     processor, tokenizer, model = load_hugginface_model(backend)
     
@@ -132,6 +142,11 @@ def recognition_and_save(input_dir, output_csv):
     df.to_csv(output_csv, index=False)
     
 def phoneme_alignment(input_wav: pathlib.Path, output_dir: str, backend : str = 'xlsr-53'):
+    '''
+    Implement the phoneme alignment algorithm by CTC segmentation.
+    
+    
+    '''
     
     processor, tokenizer, model = load_hugginface_model(backend)
     
@@ -165,3 +180,4 @@ def phoneme_alignment(input_wav: pathlib.Path, output_dir: str, backend : str = 
     
     df = pd.DataFrame(time_stamps)
     df.to_csv(f"{output_dir}/{input_wav.stem}_align.csv", index=False)
+    

@@ -22,6 +22,6 @@ def extract_ppg(input_wav: pathlib.Path, output_dir: str, backend : str = 'xlsr-
     with torch.no_grad():
         logits = model(inputs.input_values).logits.cpu()[0]
         #logits = model(waveform).logits[0]
-        probs = torch.nn.functional.softmax(logits,dim=1)
+        probs = torch.nn.functional.log_softmax(logits,dim=-1)
         
     np.save(f"{output_dir}/{input_wav.stem}_ppg.npy", probs.numpy())
