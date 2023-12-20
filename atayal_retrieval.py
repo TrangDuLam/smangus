@@ -108,7 +108,7 @@ def plot_log_ppg(input_wav: pathlib.Path, output_dir = str, n_best: int = 3, bac
     hmap.set_xlabel('Time (s)')
     hmap.set_ylabel('Phonemes')
     hmap.set_title(f'{n_best}-best PPG')
-    plt.savefig(f"{output_dir}/{input_wav.stem}_ppg.png")
+    hmap.figure.savefig(f"./tmp_ppg.png", bbox_inches='tight', dpi=300) # Remove the white space
     
 def get_phonemes(audio : np.ndarray, samplerate : int, backend : str = 'xlsr-53'):
     '''
