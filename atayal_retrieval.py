@@ -84,18 +84,16 @@ def plot_log_ppg(input_wav: pathlib.Path, output_dir = str, n_best: int = 3, bac
     nbest_ppg = np.log(1e-6) * torch.ones_like(probs)
 
     for time in range(probs.shape[0]):
-        #print(time,tokenizer.decode(torch.argmax(probs[time])))
+        
         if probs[time][0] > torch.log(torch.Tensor([0.999])): # Silence or padding
             nbest_ppg[time][0] = probs[time][0]
         else :
             sort_probs, sort_idx = torch.sort(probs[time],descending=True)
             nbest_ppg[time][sort_idx[:n_best]] = sort_probs[:n_best]
 
-    rawIdxStored = [
-        i
-        for i, post in enumerate(nbest_ppg.T)
-        if not torch.all(post == np.log(1e-6))
-    ]
+    rawIdxStored = [ i for i, post in enumerate(nbest_ppg.T) if not torch.all(post == np.log(1e-6))]
+    # To extract the phonemes that are detected at least once by list comprehension
+    
     times = 0.0125 + 0.02 * np.arange(0, nbest_ppg.shape[0]) # the time axis ticks
 
     plt.figure(figsize=(33.97, 21))
