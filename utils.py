@@ -18,7 +18,7 @@ def check_sf(input_wav: pathlib.Path):
         
 def load_hugginface_model(model_tag: str = 'xlsr-53') :
     
-    json_file = open(f'./config.json')
+    json_file = open('./config.json')
     conf = json.load(json_file)
     
     processor = Wav2Vec2Processor.from_pretrained(conf[model_tag])

@@ -19,12 +19,6 @@ import os
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC, Wav2Vec2CTCTokenizer
 import ctc_segmentation
 
-'''
-processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-xlsr-53-espeak-cv-ft")
-tokenizer = Wav2Vec2CTCTokenizer.from_pretrained("facebook/wav2vec2-xlsr-53-espeak-cv-ft")
-model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-xlsr-53-espeak-cv-ft")
-'''
-
 def diagnosis(input_wav: pathlib.Path, output_dir: str, backend : str = 'xlsr-53') :
     
     processor, _, model = load_hugginface_model(backend)
