@@ -2,3 +2,6 @@
 
 # Ignore the build directory generated
 __pycache__
+
+# Ingore unit test
+unit_test_notebooks
