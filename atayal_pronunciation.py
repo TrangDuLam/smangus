@@ -51,3 +51,20 @@ def goodness_of_pronunciation(input_wav: os.PathLike, output_dir: os.PathLike = 
             f.close()
         
     return diagosis_dict
+
+def phoneme_decode_list(input_wav: os.PathLike, backend: str = 'xlsr-53') :
+    
+    processor, _, model = load_hugginface_model(backend)
+    waveform, sample_rate = torchaudio.load(input_wav)
+    
+    inputs = processor(waveform[0], return_tensors="pt", padding="longest", sampling_rate = sample_rate)
+    with torch.no_grad():
+        
+        logits = model(inputs.input_values).logits.cpu()[0]
+        
+        # probs = torch.nn.functional.log_softmax(logits, dim=-1)
+        
+    predict_ids = torch.argmax(logits, dim=-1)
+    phoneme_string = processor.decode(predict_ids)
+        
+    return phoneme_string.split(" ")
