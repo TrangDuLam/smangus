@@ -25,3 +25,12 @@ def pitch_contour_pruned(filename: str, to_prune : bool = False) :
         f0 = f0[f0 != 0]
     
     return f0
+
+def to_mel(f: npt.ArrayLike):
+    '''
+    Convert linear frequency to mel scale.
+    
+    Source: https://en.wikipedia.org/wiki/Mel_scale
+    '''
+    
+    return 2595*np.log10(1+f/700)
