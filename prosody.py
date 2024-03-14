@@ -1,8 +1,10 @@
-import pyworld as pw
 import numpy as np
 import wave
 import matplotlib.pyplot as plt
 import soundfile as sf
+
+import pyworld as pw
+from dtw import dtw
 
 import typing
 import numpy.typing as npt
@@ -34,3 +36,29 @@ def to_mel(f: npt.ArrayLike):
     '''
     
     return 2595*np.log10(1+f/700)
+
+def prosodic_metric(pitch_learner: npt.ArrayLike, pitch_instuctor: npt.ArrayLike, visualize : bool = False) :
+    '''
+    Calculate the prosodic metric between the pitch contour of the learner and the instructor based on 
+    the dynamic time warping algorithm.
+    
+    pitch_learner: npt.ArrayLike, the pitch contour of the learner.
+    pitch_instuctor: npt.ArrayLike, the pitch contour of the instructor.
+    visualize: bool, determine whether to visualize the alignment.
+    '''
+    
+    f0_mel_learner = to_mel(pitch_learner)
+    f0_mel_instuctor = to_mel(pitch_instuctor)
+    
+    f0_diff_learner = np.diff(f0_mel_learner)
+    f0_diff_instuctor = np.diff(f0_mel_instuctor)
+    
+    alignment = dtw(f0_diff_learner, f0_diff_instuctor, keep_internals=False)
+    
+    if visualize:
+        alignment.plot(type="twoway")
+        plt.legend([f'dist: {alignment.distance:.2f}'])
+        plt.xlabel('Instructor (frame index)')
+        plt.ylabel('Student (frame index)')  
+
+    return alignment.distance
