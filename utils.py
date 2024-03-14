@@ -63,4 +63,4 @@ def vad_desilence(filename, hf_token) :
         else :
             vads = np.concatenate((vads, wave[t_start:t_end]))
             
-    sf.write(f'{filename}_desilenced.wav', vads, fs)
+    sf.write(f'{filename[:-4]}_desilenced.wav', vads, fs)
