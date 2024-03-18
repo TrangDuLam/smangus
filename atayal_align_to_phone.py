@@ -33,7 +33,7 @@ def get_parser():
     
     return parser
 
-def get_word_timestamps(audio : np.ndarray, samplerate : int, model : Wav2Vec2ForCTC = model,
+def get_word_timestamps(audio : torch.Tensor, samplerate : int, model : Wav2Vec2ForCTC = model,
     processor : Wav2Vec2Processor = processor, tokenizer : Wav2Vec2CTCTokenizer = tokenizer):
     
     assert audio.ndim == 1
