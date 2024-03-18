@@ -1,5 +1,6 @@
 import numpy as np
 from typing import List
+import os
 
 import torch
 import torchaudio
@@ -66,6 +67,9 @@ if __name__ == '__main__':
     
     parser = get_parser()
     args = parser.parse_args()
+    
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
     
     all_audio = pathlib.Path(args.input_dir).glob('**/*.wav*')
     

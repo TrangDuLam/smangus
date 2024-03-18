@@ -1,6 +1,6 @@
 import numpy as np
 from typing import List
-from .utils import *
+from utils import *
 from tqdm import tqdm
 
 import torch
