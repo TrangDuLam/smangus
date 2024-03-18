@@ -36,7 +36,6 @@ def get_parser():
 def get_word_timestamps(audio : torch.Tensor, samplerate : int, model : Wav2Vec2ForCTC = model,
     processor : Wav2Vec2Processor = processor, tokenizer : Wav2Vec2CTCTokenizer = tokenizer):
     
-    assert audio.ndim == 1
     # Run prediction, get logits and probabilities
     inputs = processor(audio, return_tensors="pt", padding="longest", sampling_rate = samplerate)
     with torch.no_grad():
@@ -55,6 +54,9 @@ def get_word_timestamps(audio : torch.Tensor, samplerate : int, model : Wav2Vec2
     inv_vocab = {v:k for k,v in vocab.items()}
     char_list = [inv_vocab[i] for i in range(len(inv_vocab))]
     config = ctc_segmentation.CtcSegmentationParameters(char_list=char_list)
+    
+    # print('audio.shape[0]', audio.shape[0]) Debug usage
+    
     config.index_duration = audio.shape[0] / probs.size()[0] / samplerate
     
     ground_truth_mat, utt_begin_indices = ctc_segmentation.prepare_text(config, words)

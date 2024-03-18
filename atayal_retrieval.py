@@ -137,15 +137,17 @@ def phoneme_alignment(input_wav: pathlib.Path, output_dir: str, backend : str = 
     '''
     Implement the phoneme alignment algorithm by CTC segmentation.
     
-    
+    bug fixing ! Please you atanayl_align_to_phone.py for the reference.
     '''
     
     processor, tokenizer, model = load_hugginface_model(backend)
     
     waveform, sample_rate = torchaudio.load(input_wav)
     
+    waveform = waveform[0]
+    
     # Run prediction, get logits and probabilities
-    inputs = processor(waveform[0], return_tensors="pt", padding="longest", sampling_rate = sample_rate)
+    inputs = processor(waveform, return_tensors="pt", padding="longest", sampling_rate = sample_rate)
     with torch.no_grad():
         logits = model(inputs.input_values).logits.cpu()[0]
         #logits = model(waveform).logits[0]
@@ -162,6 +164,8 @@ def phoneme_alignment(input_wav: pathlib.Path, output_dir: str, backend : str = 
     inv_vocab = {v:k for k,v in vocab.items()}
     char_list = [inv_vocab[i] for i in range(len(inv_vocab))]
     config = ctc_segmentation.CtcSegmentationParameters(char_list=char_list)
+    
+    # print('waveform.shape[0] : ', waveform.shape[0]) Debug usage
     config.index_duration = waveform.shape[0] / probs.size()[0] / sample_rate
     
     ground_truth_mat, utt_begin_indices = ctc_segmentation.prepare_text(config, words)
