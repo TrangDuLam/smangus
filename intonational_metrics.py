@@ -1,5 +1,6 @@
 import numpy as np
 import wave
+import scipy
 import matplotlib.pyplot as plt
 import soundfile as sf
 
@@ -22,6 +23,8 @@ def pitch_contour_pruned(filename: str, to_prune : bool = False) :
     assert len(y.shape) == 1, "Only mono audio files are supported"
     
     f0, _, _ = pw.wav2world(y, fs)
+    
+    f0 = scipy.signal.medfilt(f0) # median filtering
     
     if to_prune:
         f0 = f0[f0 != 0]
