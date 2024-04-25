@@ -24,7 +24,9 @@ def pitch_contour_pruned(filename: str, to_prune : bool = False) :
     
     f0, _, _ = pw.wav2world(y, fs)
     
-    f0 = scipy.signal.medfilt(f0) # median filtering
+    f0[f0 > 500] = 0 # remove outliers
+    
+    f0 = scipy.signal.medfilt(f0, 3) # median filtering
     
     if to_prune:
         f0 = f0[f0 != 0]
