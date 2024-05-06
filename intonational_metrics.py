@@ -51,6 +51,7 @@ def world_extract(
     
     """
     Extract World-based acoustic features.
+    It is the best-known configuration for the WORLD vocoder. 
 
     Args:
         x (ndarray): 1D waveform array.
@@ -131,3 +132,36 @@ def pitch_diff_dtw(pitch_learner: npt.ArrayLike, pitch_instuctor: npt.ArrayLike,
         plt.ylabel('Student (frame index)')  
 
     return alignment.distance
+
+class intonational_metric_rmse:
+    
+    def __init__(self, f0_ref, melcoef_ref, f0_test, melcoef_test) -> None:
+        
+        self.f0_ref = f0_ref
+        self.melcoef_ref = melcoef_ref
+        self.f0_test = f0_test
+        self.melcoef_test = melcoef_test
+        self.__log_f0_rmse = None # private variable
+        
+    def __compute(self):
+        
+        _, path = fastdtw(self.melcoef_ref, self.melcoef_test, dist=spatial.distance.euclidean)
+        twf = np.array(path).T
+        
+        f0_ref_dtw = self.f0_ref[twf[0]]
+        f0_test_dtw = self.f0_test[twf[1]]
+        
+        nonzero_idxs = np.where((f0_ref_dtw != 0) & (f0_test_dtw != 0))[0] # acquire voiced frames
+        gen_f0_dtw_voiced = np.log(f0_ref_dtw[nonzero_idxs])
+        gt_f0_dtw_voiced = np.log(f0_test_dtw[nonzero_idxs])
+        
+        f0_deltas = np.diff(gen_f0_dtw_voiced)
+        f0_1_deltas = np.diff(gt_f0_dtw_voiced)
+        
+        self.__log_f0_rmse = np.sqrt(np.mean((f0_deltas - f0_1_deltas) ** 2))
+        
+    def get_logf0_rmse(self) :
+        
+        self.__compute()
+        
+        return self.__log_f0_rmse
